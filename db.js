@@ -27,8 +27,11 @@ const initDB = async () => {
         person_id INTEGER NOT NULL REFERENCES persons(id) ON DELETE CASCADE,
         amount DECIMAL(10, 2) NOT NULL,
         date TIMESTAMP NOT NULL,
-        description TEXT
+        description TEXT,
+        image_url TEXT
       );
+
+      ALTER TABLE transactions ADD COLUMN IF NOT EXISTS image_url TEXT;
     `);
     console.log("Database initialized successfully");
   } catch (err) {

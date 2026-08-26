@@ -7,7 +7,7 @@ require('dotenv').config();
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret_instapay_key_for_local_dev';
 
@@ -119,14 +119,14 @@ app.get('/transactions', authenticateToken, async (req, res) => {
 });
 
 app.post('/transactions', authenticateToken, async (req, res) => {
-  const { person_id, amount, date, description } = req.body;
+  const { person_id, amount, date, description, image_url } = req.body;
   if (!person_id || amount === undefined) return res.status(400).json({ error: 'Person and Amount required' });
   const txDate = date || new Date().toISOString();
 
   try {
     const result = await pool.query(
-      'INSERT INTO transactions (user_id, person_id, amount, date, description) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [req.user.id, person_id, amount, txDate, description || '']
+      'INSERT INTO transactions (user_id, person_id, amount, date, description, image_url) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [req.user.id, person_id, amount, txDate, description || '', image_url || null]
     );
     res.json(result.rows[0]);
   } catch (err) {
